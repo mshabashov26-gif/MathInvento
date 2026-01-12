@@ -292,6 +292,24 @@ function displayAchievements() {
     list.innerHTML = html;
 }
 
+// Compatibility wrapper: checkAuthAndShowModal
+// Some code invoked checkAuthAndShowModal but no such function existed — provide a safe wrapper.
+function checkAuthAndShowModal() {
+    if (typeof AuthSystem !== 'undefined') {
+        if (!AuthSystem.checkAuthState()) {
+            showAuthModal();
+            return true;
+        } else {
+            hideAuthModal();
+            return false;
+        }
+    } else {
+        // No AuthSystem available — show modal by default (safe fallback)
+        showAuthModal();
+        return null;
+    }
+}
+
 // Update navigation
 function updateNavigation() {
     const navButtons = document.querySelectorAll('.nav-btn');
@@ -314,5 +332,4 @@ function updateNavigation() {
         });
     });
 }
-
-
+```
