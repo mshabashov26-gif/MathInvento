@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IB Math Mastery Engine</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="questions-db.js"></script>
+    <script src="profile-stats.js"></script>
+    <script src="formula-booklet.js"></script>
+    <script src="mock-exam.js"></script>
+    <script src="ai-chat.js"></script>
+    <script src="auth-system.js"></script>
+    <script src="groups-system.js"></script>
+    <script src="leaderboard-system.js"></script>
+    <script src="performance-analytics.js"></script>
+    <script src="advanced-features.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">IB Math Mastery Engine</h1>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-section="practice">Practice</button>
+                    <button class="nav-btn" data-section="mockExam">Mock Exam</button>
+                    <button class="nav-btn" data-section="formulas">Formulas</button>
+                    <button class="nav-btn" data-section="leaderboard">Leaderboard</button>
+                    <button class="nav-btn" data-section="groups">Groups</button>
+                    <button class="nav-btn" data-section="profile">Profile</button>
+                    <button class="nav-btn" data-section="statistics">Statistics</button>
+                </nav>
+                <div class="header-controls">
+                    <div id="userInfo" style="display: none;">
+                        <span class="user-name" id="headerUserName"></span>
+                        <span class="streak-badge" id="headerStreak">🔥 0</span>
+                    </div>
+                    <button class="btn-icon" id="aiChatToggle" title="AI Chat Helper">💬</button>
+                    <button class="btn-icon" id="achievementsToggle" title="Achievements">🏆</button>
+                    <div class="mode-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="examModeToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="mode-label" id="modeLabel">Practice Mode</span>
+                    </div>
+                    <button class="btn btn-small" id="signOutBtn" style="display: none;">Sign Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h2>Course Selection</h2>
+                    <div class="course-selector">
+                        <select id="courseSelect" class="select-input">
+                            <option value="AA SL">AA SL</option>
+                            <option value="AA HL">AA HL</option>
+                            <option value="AI SL">AI SL</option>
+                            <option value="AI HL">AI HL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>Topic Selection</h2>
+                    <div class="topic-buttons">
+                        <button class="topic-btn" data-topic="Number & Algebra">Number & Algebra</button>
+                        <button class="topic-btn" data-topic="Functions">Functions</button>
+                        <button class="topic-btn" data-topic="Geometry & Trig">Geometry & Trig</button>
+                        <button class="topic-btn" data-topic="Stats & Probability">Stats & Probability</button>
+                        <button class="topic-btn" data-topic="Calculus">Calculus</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>Difficulty Level</h2>
+                    <div class="difficulty-selector">
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="Foundation" checked>
+                            <span>Foundation (Grades 1-3)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="Standard">
+                            <span>Standard (Grades 4-5)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="Distinction">
+                            <span>Distinction (Grades 6-7)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h2>Paper Type</h2>
+                    <div class="paper-selector">
+                        <label class="radio-label">
+                            <input type="radio" name="paper" value="Paper1" checked>
+                            <span>Paper 1 (Non-calculator)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="paper" value="Paper2">
+                            <span>Paper 2 (Calculator/GDC)</span>
+                        </label>
+                        <label class="radio-label" id="paper3Option" style="display: none;">
+                            <input type="radio" name="paper" value="Paper3">
+                            <span>Paper 3 (Investigation - HL only)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <button class="btn btn-primary" id="generateQuestionBtn">Generate Question</button>
+                    <button class="btn btn-secondary" id="randomQuestionBtn">🎲 Random Question</button>
+                    <button class="btn btn-secondary" id="paper3Btn" style="display: none;">Paper 3 Deep Dive</button>
+                </div>
+            </aside>
+
+            <!-- Main Panel -->
+            <main class="main-panel">
+                <!-- Question Display Area -->
+                <div class="question-section" id="questionSection" style="display: none;">
+                    <div class="exam-mode-bar" id="examModeBar" style="display: none;">
+                        <div class="timer">
+                            <span>Time Remaining: </span>
+                            <span id="timerDisplay">00:00</span>
+                        </div>
+                        <button class="btn btn-small" id="submitExamBtn">Submit Answer</button>
+                    </div>
+
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span class="question-number" id="questionNumber">Question 1</span>
+                            <span class="question-marks" id="questionMarks">[5 marks]</span>
+                        </div>
+                        <div class="question-content" id="questionContent">
+                            <!-- Question will be displayed here -->
+                        </div>
+                    </div>
+
+                    <div class="answer-section">
+                        <h3>Your Answer:</h3>
+                        <textarea 
+                            id="studentAnswer" 
+                            class="answer-input" 
+                            placeholder="Type your solution here... Use LaTeX for mathematical expressions: $x^2 + 5x + 6$"
+                            rows="10"
+                        ></textarea>
+                        <div class="answer-actions">
+                            <button class="btn btn-primary" id="submitAnswerBtn">Submit Answer</button>
+                            <button class="btn btn-secondary" id="hintBtn">Get Hint</button>
+                            <button class="btn btn-secondary" id="showSolutionBtn">Show Solution</button>
+                        </div>
+                    </div>
+
+                    <div class="feedback-section" id="feedbackSection" style="display: none;">
+                        <h3>Feedback & Marking</h3>
+                        <div class="feedback-content" id="feedbackContent">
+                            <!-- Feedback will be displayed here -->
+                        </div>
+                        <div class="marking-breakdown" id="markingBreakdown">
+                            <!-- Marking breakdown will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Screen -->
+                <div class="welcome-section" id="welcomeSection">
+                    <div class="welcome-card">
+                        <h2>Welcome to IB Math Mastery Engine</h2>
+                        <p>Your specialized AI tutor for achieving Grade 7 in IB Mathematics</p>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">📚</div>
+                                <h3>Syllabus-Specific Questions</h3>
+                                <p>Original questions based on IB Math topics</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">📝</div>
+                                <h3>Scaffolded Solutions</h3>
+                                <p>Step-by-step breakdown with method marks</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">✅</div>
+                                <h3>Mark Scheme Simulation</h3>
+                                <p>Official IB criteria: M, A, R, G marks</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">🔍</div>
+                                <h3>Paper 3 Investigations</h3>
+                                <p>Deep dive into complex mathematical patterns</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-large" id="startPracticeBtn">🎲 Start with Random Question</button>
+                    </div>
+                </div>
+
+                <!-- GDC Command Library Panel -->
+                <div class="gdc-library-panel" id="gdcLibraryPanel" style="display: none;">
+                    <h2>GDC Command Library</h2>
+                    <div class="gdc-selector">
+                        <select id="gdcModelSelect" class="select-input">
+                            <option value="ti-nspire">Ti-Nspire CX</option>
+                            <option value="casio-cg50">Casio CG-50</option>
+                        </select>
+                    </div>
+                    <div class="gdc-category">
+                        <h3>Select Operation:</h3>
+                        <div class="gdc-buttons">
+                            <button class="gdc-command-btn" data-command="intersection">Function Intersection</button>
+                            <button class="gdc-command-btn" data-command="derivative">Numerical Derivative</button>
+                            <button class="gdc-command-btn" data-command="integral">Numerical Integration</button>
+                            <button class="gdc-command-btn" data-command="normal">Normal Distribution</button>
+                            <button class="gdc-command-btn" data-command="chi-squared">Chi-Squared Test</button>
+                            <button class="gdc-command-btn" data-command="matrix">Matrix Operations</button>
+                            <button class="gdc-command-btn" data-command="regression">Regression Analysis</button>
+                            <button class="gdc-command-btn" data-command="solve">Equation Solver</button>
+                        </div>
+                    </div>
+                    <div class="gdc-instruction" id="gdcInstruction">
+                        <h3>Instructions:</h3>
+                        <div id="gdcInstructionContent">
+                            Select an operation to see step-by-step instructions
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div class="section-panel" id="profileSection" style="display: none;">
+                    <h2>Your Profile</h2>
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">👤</div>
+                            <div>
+                                <h3 id="profileName">Student</h3>
+                                <p id="profileCourse">AA SL</p>
+                            </div>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Level</span>
+                                <span class="stat-value" id="userLevel">Beginner</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Questions</span>
+                                <span class="stat-value" id="totalQuestions">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Average Score</span>
+                                <span class="stat-value" id="averageScore">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Current Streak</span>
+                                <span class="stat-value" id="currentStreak">0 🔥</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Member Since</span>
+                                <span class="stat-value" id="memberSince">-</span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <input type="text" id="nameInput" placeholder="Enter your name" class="input-field">
+                            <button class="btn btn-primary" id="updateNameBtn">Update Name</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Section -->
+                <div class="section-panel" id="statisticsSection" style="display: none;">
+                    <h2>Your Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Best Topic</h3>
+                            <div id="bestTopic">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Worst Topic</h3>
+                            <div id="worstTopic">-</div>
+                        </div>
+                    </div>
+                    <div class="topic-stats">
+                        <h3>Topic Performance</h3>
+                        <div id="topicStatsList"></div>
+                    </div>
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivityList"></div>
+                    </div>
+                </div>
+
+                <!-- Mock Exam Section -->
+                <div class="section-panel" id="mockExamSection" style="display: none;">
+                    <h2>Mock Exam</h2>
+                    <div id="mockExamSetup">
+                        <div class="exam-setup-card">
+                            <h3>Create New Mock Exam</h3>
+                            <div class="form-group">
+                                <label>Course:</label>
+                                <select id="examCourseSelect" class="select-input">
+                                    <option value="AA SL">AA SL</option>
+                                    <option value="AA HL">AA HL</option>
+                                    <option value="AI SL">AI SL</option>
+                                    <option value="AI HL">AI HL</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Paper Type:</label>
+                                <select id="examPaperSelect" class="select-input">
+                                    <option value="Paper1">Paper 1 (90 min)</option>
+                                    <option value="Paper2">Paper 2 (90 min)</option>
+                                    <option value="Paper3">Paper 3 (60 min - HL only)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" id="createExamBtn">Start Mock Exam</button>
+                        </div>
+                        <div class="exam-history">
+                            <h3>Past Exams</h3>
+                            <div id="examHistoryList"></div>
+                        </div>
+                    </div>
+                    <div id="mockExamActive" style="display: none;">
+                        <div class="exam-header">
+                            <h3>Mock Exam in Progress</h3>
+                            <div class="exam-timer">
+                                <span>Time Remaining: </span>
+                                <span id="mockExamTimer">90:00</span>
+                            </div>
+                        </div>
+                        <div id="examQuestionDisplay"></div>
+                        <div id="examNavigation"></div>
+                    </div>
+                </div>
+
+                <!-- Formula Booklet Section -->
+                <div class="section-panel" id="formulasSection" style="display: none;">
+                    <h2>Formula Booklet</h2>
+                    <div class="formula-topic-selector">
+                        <button class="formula-topic-btn active" data-topic="Number & Algebra">Number & Algebra</button>
+                        <button class="formula-topic-btn" data-topic="Functions">Functions</button>
+                        <button class="formula-topic-btn" data-topic="Geometry & Trig">Geometry & Trig</button>
+                        <button class="formula-topic-btn" data-topic="Stats & Probability">Stats & Probability</button>
+                        <button class="formula-topic-btn" data-topic="Calculus">Calculus</button>
+                    </div>
+                    <div id="formulaContent"></div>
+                </div>
+            </main>
+        </div>
+
+        <!-- AI Chat Panel -->
+        <div class="ai-chat-panel" id="aiChatPanel" style="display: none;">
+            <div class="chat-header">
+                <h3>AI Math Helper</h3>
+                <button class="btn-icon" id="closeChatBtn">✕</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message ai-message">
+                    <p>Hello! I'm your AI Math Helper. Ask me any math question, and I'll guide you through solving it step by step!</p>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Ask a math question...">
+                <button class="btn btn-primary" id="sendChatBtn">Send</button>
+            </div>
+        </div>
+
+        <!-- Login/Signup Modal -->
+        <div class="modal" id="authModal">
+            <div class="modal-content">
+                <span class="close-modal" id="closeAuthModal">&times;</span>
+                <div id="loginView">
+                    <h2>Sign In</h2>
+                    <form id="loginForm">
+                        <input type="text" id="loginUsername" placeholder="Username or Email" required>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
+                    <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
+                </div>
+                <div id="signupView" style="display: none;">
+                    <h2>Sign Up</h2>
+                    <form id="signupForm">
+                        <input type="text" id="signupUsername" placeholder="Username" required>
+                        <input type="email" id="signupEmail" placeholder="Email" required>
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                        <select id="signupCourse" class="select-input">
+                            <option value="AA SL">AA SL</option>
+                            <option value="AA HL">AA HL</option>
+                            <option value="AI SL">AI SL</option>
+                            <option value="AI HL">AI HL</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </form>
+                    <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Modal -->
+        <div class="modal" id="achievementsModal">
+            <div class="modal-content modal-large">
+                <span class="close-modal" id="closeAchievementsModal">&times;</span>
+                <h2>Your Achievements</h2>
+                <div id="achievementsList"></div>
+            </div>
+        </div>
+
+        <!-- GDC Library Button -->
+        <button class="gdc-library-toggle" id="gdcLibraryToggle" title="GDC Command Library">
+            📱
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize additional modules
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof ProfileManager !== 'undefined') {
+                ProfileManager.init();
+            }
+            if (typeof AIChatHelper !== 'undefined') {
+                AIChatHelper.init();
+            }
+        });
+    </script>
+</body>
+</html>
+
