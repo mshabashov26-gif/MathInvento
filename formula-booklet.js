@@ -329,7 +329,7 @@ const FormulaBooklet = {
                     },
                     {
                         name: 'Complementary Events',
-                        formula: '$P(A\') = 1 - P(A)$'
+                        formula: '$P(A\\') = 1 - P(A)$'
                     },
                     {
                         name: 'Mutually Exclusive Events',
@@ -344,7 +344,7 @@ const FormulaBooklet = {
                         formula: '$P(A|B) = \\frac{P(A \\cap B)}{P(B)}$'
                     },
                     {
-                        name: 'Bayes\' Theorem',
+                        name: 'Bayes\\' Theorem',
                         formula: '$P(A|B) = \\frac{P(B|A) \\cdot P(A)}{P(B)}$'
                     }
                 ]
@@ -373,7 +373,7 @@ const FormulaBooklet = {
                 category: 'Regression and Correlation',
                 items: [
                     {
-                        name: 'Pearson\'s Correlation Coefficient',
+                        name: 'Pearson\\'s Correlation Coefficient',
                         formula: '$r = \\frac{\\sum(x - \\bar{x})(y - \\bar{y})}{\\sqrt{\\sum(x - \\bar{x})^2\\sum(y - \\bar{y})^2}}$'
                     },
                     {
@@ -405,7 +405,7 @@ const FormulaBooklet = {
                     },
                     {
                         name: 'Chain Rule',
-                        formula: '$\\frac{d}{dx}(f(g(x))) = f\'(g(x)) \\cdot g\'(x)$'
+                        formula: '$\\frac{d}{dx}(f(g(x))) = f\\'(g(x)) \\cdot g\\'(x)$'
                     },
                     {
                         name: 'Common Derivatives',
@@ -415,7 +415,7 @@ const FormulaBooklet = {
                     },
                     {
                         name: 'Second Derivative',
-                        formula: '$f\'\'(x) = \\frac{d^2y}{dx^2}$'
+                        formula: '$f\\'\\'(x) = \\frac{d^2y}{dx^2}$'
                     }
                 ]
             },
@@ -429,7 +429,7 @@ const FormulaBooklet = {
                     {
                         name: 'Definite Integral',
                         formula: '$\\int_a^b f(x) dx = F(b) - F(a)$',
-                        description: 'where $F\'(x) = f(x)$'
+                        description: 'where $F\\'(x) = f(x)$'
                     },
                     {
                         name: 'Integration by Parts',
@@ -478,8 +478,8 @@ const FormulaBooklet = {
                 category: 'Limits and Continuity',
                 items: [
                     {
-                        name: 'L\'Hôpital\'s Rule',
-                        formula: '$\\lim_{x \\to a} \\frac{f(x)}{g(x)} = \\lim_{x \\to a} \\frac{f\'(x)}{g\'(x)}$',
+                        name: 'L\\'Hôpital\\'s Rule',
+                        formula: '$\\lim_{x \\to a} \\frac{f(x)}{g(x)} = \\lim_{x \\to a} \\frac{f\\'(x)}{g\\'(x)}$',
                         description: 'when $\\lim_{x \\to a} f(x) = \\lim_{x \\to a} g(x) = 0$ or $\\pm \\infty$'
                     },
                     {
@@ -492,3 +492,12 @@ const FormulaBooklet = {
     }
 };
 
+// Backwards-compatible global export so non-module scripts can access the data
+if (typeof window !== 'undefined') {
+    window.FormulaBooklet = FormulaBooklet;
+}
+
+// CommonJS export for node/bundlers (keeps compatibility)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FormulaBooklet;
+}
