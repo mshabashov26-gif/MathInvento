@@ -248,7 +248,7 @@ const FormulaBooklet = {
           },
           {
             name: "Surface Area of Cylinder",
-            formula: "$SA = 2\\pi r^2 + 2\\pi rh$          "
+            formula: "$SA = 2\\pi r^2 + 2\\pi rh$"
           },
           {
             name: "Volume of Cone",
