@@ -4,8 +4,18 @@
 const ProfileManager = {
     // Initialize user profile
     init() {
+        // Backwards-compatible: call the loader aliases
         this.loadProfile();
         this.loadStatistics();
+    },
+
+    // Backwards-compatible aliases (other code may call loadProfile/loadStatistics)
+    loadProfile() {
+        return this.getProfile();
+    },
+
+    loadStatistics() {
+        return this.getStatistics();
     },
 
     // Get or create user profile
@@ -174,4 +184,3 @@ const ProfileManager = {
         this.init();
     }
 };
-
