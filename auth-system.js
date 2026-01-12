@@ -41,7 +41,6 @@ const AuthSystem = {
 
   // Sign up new user
   signUp(username, email, password, course = "AA SL") {
-    // Check if username already exists
     const existingUser = Object.values(this.users).find(
       (u) => u.username === username || u.email === email
     );
@@ -49,13 +48,12 @@ const AuthSystem = {
       return { success: false, message: "Username or email already exists" };
     }
 
-    // Create new user
     const userId = "user_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
     const newUser = {
       id: userId,
       username: username,
       email: email,
-      password: password, // In production, hash this
+      password: password, // Demo only - NOT secure in production
       course: course,
       joinedDate: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
@@ -114,7 +112,6 @@ const AuthSystem = {
     const lastActivity = user.stats.lastActivityDate ? new Date(user.stats.lastActivityDate).toDateString() : null;
 
     if (lastActivity === today) {
-      // Already counted today
       return;
     }
 
@@ -123,10 +120,8 @@ const AuthSystem = {
     const yesterdayStr = yesterday.toDateString();
 
     if (lastActivity === yesterdayStr) {
-      // Continue streak
       user.stats.currentStreak++;
     } else if (lastActivity !== today) {
-      // Reset streak
       user.stats.currentStreak = 1;
     }
 
@@ -156,7 +151,7 @@ const AuthSystem = {
     }
   },
 
-  // Get level name from numeric level
+  // Level helpers
   getLevelName(numericLevel) {
     if (numericLevel <= 10) return "Beginner";
     if (numericLevel <= 25) return "Intermediate";
@@ -164,17 +159,12 @@ const AuthSystem = {
     return "Expert Torturing";
   },
 
-  // Calculate user level based on experience
   calculateLevel(user) {
     const oldLevel = user.level;
-    // Level formula: level = floor(sqrt(experience / 100)) + 1
     user.level = Math.floor(Math.sqrt(user.experience / 100)) + 1;
 
-    // Add experience for questions
     const questionsXP = user.stats.totalQuestions * 10;
-    // Add experience for streaks
     const streakXP = user.stats.currentStreak * 5;
-    // Add experience for scores
     const scoreXP = Math.floor(user.stats.averageScore * 2);
 
     user.experience = questionsXP + streakXP + scoreXP;
@@ -182,9 +172,7 @@ const AuthSystem = {
     const oldLevelName = this.getLevelName(oldLevel);
     const newLevelName = this.getLevelName(user.level);
 
-    // Check for level up
     if (user.level > oldLevel) {
-      // Check for tier up (named level change)
       if (oldLevelName !== newLevelName) {
         this.addAchievement(user, {
           id: `tier_${newLevelName.toLowerCase().replace(" ", "_")}`,
@@ -202,65 +190,19 @@ const AuthSystem = {
       }
     }
 
-    // Store level name for easy access
     user.levelName = newLevelName;
   },
 
-  // Check and award achievements
+  // Achievements
   checkAchievements(user) {
     const achievements = [
-      {
-        id: "first_question",
-        name: "Getting Started",
-        description: "Complete your first question",
-        icon: "🎓",
-        check: () => user.stats.totalQuestions >= 1
-      },
-      {
-        id: "ten_questions",
-        name: "Practice Makes Perfect",
-        description: "Complete 10 questions",
-        icon: "📚",
-        check: () => user.stats.totalQuestions >= 10
-      },
-      {
-        id: "hundred_questions",
-        name: "Dedicated Learner",
-        description: "Complete 100 questions",
-        icon: "🏆",
-        check: () => user.stats.totalQuestions >= 100
-      },
-      {
-        id: "streak_7",
-        name: "Weekly Warrior",
-        description: "Maintain a 7-day streak",
-        icon: "🔥",
-        check: () => user.stats.currentStreak >= 7
-      },
-      {
-        id: "streak_30",
-        name: "Monthly Master",
-        description: "Maintain a 30-day streak",
-        icon: "⭐",
-        check: () => user.stats.currentStreak >= 30
-      },
-      {
-        id: "score_90",
-        name: "Near Perfect",
-        description: "Achieve 90% average score",
-        icon: "💯",
-        check: () => user.stats.averageScore >= 90
-      },
-      {
-        id: "top_performer",
-        name: "Top Performer",
-        description: "Rank in top 10",
-        icon: "👑",
-        check: () => {
-          const ranking = typeof LeaderboardSystem !== "undefined" ? LeaderboardSystem.getUserRanking(user.id) : null;
-          return ranking && ranking.position <= 10;
-        }
-      }
+      { id: "first_question", name: "Getting Started", description: "Complete your first question", icon: "🎓", check: () => user.stats.totalQuestions >= 1 },
+      { id: "ten_questions", name: "Practice Makes Perfect", description: "Complete 10 questions", icon: "📚", check: () => user.stats.totalQuestions >= 10 },
+      { id: "hundred_questions", name: "Dedicated Learner", description: "Complete 100 questions", icon: "🏆", check: () => user.stats.totalQuestions >= 100 },
+      { id: "streak_7", name: "Weekly Warrior", description: "Maintain a 7-day streak", icon: "🔥", check: () => user.stats.currentStreak >= 7 },
+      { id: "streak_30", name: "Monthly Master", description: "Maintain a 30-day streak", icon: "⭐", check: () => user.stats.currentStreak >= 30 },
+      { id: "score_90", name: "Near Perfect", description: "Achieve 90% average score", icon: "💯", check: () => user.stats.averageScore >= 90 },
+      { id: "top_performer", name: "Top Performer", description: "Rank in top 10", icon: "👑", check: () => { const ranking = typeof LeaderboardSystem !== "undefined" ? LeaderboardSystem.getUserRanking(user.id) : null; return ranking && ranking.position <= 10; } }
     ];
 
     achievements.forEach((achievement) => {
@@ -270,7 +212,6 @@ const AuthSystem = {
     });
   },
 
-  // Add achievement
   addAchievement(user, achievement) {
     if (!user.achievements.find((a) => a.id === achievement.id)) {
       achievement.unlockedAt = new Date().toISOString();
@@ -281,19 +222,17 @@ const AuthSystem = {
     return null;
   },
 
-  // Get current user
   getCurrentUser() {
     return this.currentUser;
   },
 
-  // Get all users
   getAllUsers() {
     return Object.values(this.users);
   }
 };
 
-// Compatibility helper: define a global checkAuthAndShowModal so other scripts can call it safely.
-// This ensures checkAuthAndShowModal exists before script.js calls it (avoids ReferenceError).
+// Compatibility helper (global) used by other scripts.
+// Defines checkAuthAndShowModal early so script.js calls don't fail.
 function checkAuthAndShowModal() {
   try {
     if (typeof AuthSystem !== "undefined") {
@@ -307,7 +246,6 @@ function checkAuthAndShowModal() {
         return false;
       }
     } else {
-      // Fallback: show modal if present
       const modal = document.getElementById("authModal");
       if (modal) modal.style.display = "flex";
       return null;
@@ -318,8 +256,8 @@ function checkAuthAndShowModal() {
   }
 }
 
-// Expose on window (global) so it's available for non-module code
+// Expose globally so other non-module scripts can access AuthSystem + helper
 if (typeof window !== "undefined") {
-  window.checkAuthAndShowModal = checkAuthAndShowModal;
   window.AuthSystem = AuthSystem;
+  window.checkAuthAndShowModal = checkAuthAndShowModal;
 }
